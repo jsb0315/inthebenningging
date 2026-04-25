@@ -46,11 +46,25 @@ function FyouPage() {
     <motion.main
       key="fyou"
       ref={stageRef}
-      className="relative h-dvh w-full overflow-hidden bg-white"
+      className="relative h-dvh w-full touch-none overflow-hidden overscroll-none bg-white"
+      onPointerDown={(event) => moveToPointer(event.clientX, event.clientY)}
       onPointerMove={(event) => moveToPointer(event.clientX, event.clientY)}
       onPointerLeave={moveToCenter}
       onPointerUp={moveToCenter}
       onPointerCancel={moveToCenter}
+      onTouchStart={(event) => {
+        const touch = event.touches[0]
+        if (!touch) return
+        moveToPointer(touch.clientX, touch.clientY)
+      }}
+      onTouchMove={(event) => {
+        const touch = event.touches[0]
+        if (!touch) return
+        event.preventDefault()
+        moveToPointer(touch.clientX, touch.clientY)
+      }}
+      onTouchEnd={moveToCenter}
+      onTouchCancel={moveToCenter}
     >
       <motion.div
         aria-hidden="true"
