@@ -1,0 +1,60 @@
+@import 'tailwindcss';
+/* @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;700&family=Sora:wght@400;600;700&family=Syne:wght@600;700&display=swap'); */
+
+:root {
+  --bg: #f4f4ee;
+  --bg-cloud: #dff0ff;
+  --bg-glow: #ffe8cc;
+  --ink: #132132;
+  --ink-soft: #455567;
+  --line: rgba(30, 48, 66, 0.14);
+  --panel-a: rgba(255, 254, 251, 0.84);
+  --panel-b: rgba(240, 249, 255, 0.68);
+  --signal: #e16c17;
+
+  --body: 'Sora', 'Segoe UI', sans-serif;
+  --heading: 'Syne', 'Segoe UI', sans-serif;
+  --mono: 'IBM Plex Mono', Consolas, monospace;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  margin: 0;
+  color: var(--ink-soft);
+  font-family: var(--body);
+  line-height: 1.55;
+  background:
+    radial-gradient(circle at 14% 9%, var(--bg-cloud), transparent 30%),
+    radial-gradient(circle at 84% 18%, var(--bg-glow), transparent 36%),
+    linear-gradient(170deg, var(--bg), #fbfbf7);
+  background-attachment: fixed;
+}
+
+h1,
+h2 {
+  font-family: var(--heading);
+  color: var(--ink);
+  line-height: 1.08;
+}
+
+h1 {
+  font-size: clamp(2rem, 5.8vw, 3.8rem);
+  margin: 0 0 0.95rem;
+}
+
+h2 {
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}

@@ -1,0 +1,239 @@
+.app-shell {
+  width: min(1120px, 100% - 2rem);
+  margin: 1rem auto 2.5rem;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  overflow: clip;
+  background: linear-gradient(140deg, var(--panel-a), var(--panel-b));
+  box-shadow: 0 24px 80px -48px rgba(31, 43, 55, 0.75);
+  backdrop-filter: blur(10px);
+}
+
+.app-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.8rem;
+  padding: 1rem 1.2rem;
+  border-bottom: 1px solid var(--line);
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.6), rgba(231, 245, 255, 0.5));
+}
+
+.brand {
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: 700 1.05rem/1 var(--heading);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.app-header nav {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.ghost-link {
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.65);
+  border-radius: 999px;
+  color: var(--ink-soft);
+  font: 600 0.78rem/1 var(--mono);
+  padding: 0.45rem 0.7rem;
+  cursor: pointer;
+}
+
+.view {
+  padding: 2.6rem 1.2rem 2.2rem;
+}
+
+.hero-block {
+  max-width: 780px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.hero-block.compact {
+  margin-bottom: 1rem;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  font: 700 0.72rem/1 var(--mono);
+  letter-spacing: 0.15em;
+  color: var(--signal);
+  margin: 0 0 0.85rem;
+}
+
+.hero-copy {
+  max-width: 60ch;
+  margin: 0 auto;
+}
+
+.card-grid {
+  margin-top: 2rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.route-card {
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.72));
+  padding: 1rem;
+}
+
+.route-card h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.route-card p {
+  margin: 0.6rem 0 1rem;
+  color: var(--ink-soft);
+}
+
+button {
+  font: 600 0.86rem/1 var(--mono);
+  border-radius: 10px;
+  border: 1px solid transparent;
+  background: var(--ink);
+  color: #fff;
+  padding: 0.65rem 0.8rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px -16px rgba(18, 26, 37, 0.8);
+}
+
+.stats-grid {
+  margin-top: 1.2rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+}
+
+.stat-card {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 1.1rem;
+  background: linear-gradient(165deg, #fef6ea, #e9f6ff);
+}
+
+.stat-card p {
+  margin: 0;
+  font: 700 0.78rem/1 var(--mono);
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #6f6d6d;
+}
+
+.stat-card strong {
+  margin-top: 0.55rem;
+  display: block;
+  color: var(--ink);
+  font-size: clamp(1.65rem, 3.2vw, 2.2rem);
+  line-height: 1;
+}
+
+.deck-wrap {
+  margin-top: 1.4rem;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 0.8rem;
+}
+
+.deck-list {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.deck-card {
+  text-align: left;
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(255, 255, 255, 0.68));
+  color: var(--ink);
+}
+
+.deck-card h2,
+.deck-detail h2 {
+  margin: 0 0 0.5rem;
+  font-size: 1.2rem;
+}
+
+.deck-card p,
+.deck-detail p {
+  margin: 0;
+  color: var(--ink-soft);
+}
+
+.deck-card.active {
+  outline: 2px solid rgba(255, 135, 44, 0.5);
+}
+
+.deck-detail {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 1rem;
+  background:
+    radial-gradient(circle at 20% 20%, rgba(255, 157, 77, 0.26), transparent 45%),
+    radial-gradient(circle at 82% 74%, rgba(67, 140, 255, 0.22), transparent 36%),
+    rgba(255, 255, 255, 0.75);
+}
+
+.progress-track {
+  margin: 1.1rem auto 1.6rem;
+  width: min(760px, 100%);
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(154, 173, 188, 0.35);
+  overflow: hidden;
+}
+
+.progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #ff8932, #4b9fff);
+}
+
+.story-wrap {
+  margin: 0 auto;
+  width: min(760px, 100%);
+  display: grid;
+  gap: 0.9rem;
+}
+
+.story-card {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 1.2rem;
+  background: rgba(255, 255, 255, 0.73);
+}
+
+@media (max-width: 900px) {
+  .card-grid,
+  .stats-grid,
+  .deck-wrap {
+    grid-template-columns: 1fr;
+  }
+
+  .view {
+    padding: 2rem 0.9rem 1.4rem;
+  }
+
+  .app-shell {
+    width: min(1120px, 100% - 1rem);
+    border-radius: 18px;
+  }
+}
