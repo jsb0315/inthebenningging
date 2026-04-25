@@ -1,92 +1,189 @@
-import { useCallback, useEffect, useLayoutEffect, useRef } from 'react'
-import { motion, useMotionValue, useSpring } from 'framer-motion'
+import { useCallback, useEffect, useRef } from 'react'
+import {
+	animate,
+	motion,
+	useAnimationControls,
+	useMotionValue,
+	useSpring,
+} from 'framer-motion'
+import type { PointerEvent as ReactPointerEvent } from 'react'
 
-const expoEase = (t: number) => {
-  const k = 5
-  return (Math.exp(k * t) - 1) / (Math.exp(k) - 1)
+const IDLE_RESET_DELAY_MS = 1000
+const STICKINESS_START = 0.1
+const STICKINESS_END = 0.8
+const MAX_OFFSET_MOUSE = 1000
+const MAX_OFFSET_TOUCH = 500
+
+function clampToCircle(x: number, y: number, radius: number) {
+	const distance = Math.hypot(x, y)
+	if (distance <= radius || distance === 0) {
+		return { x, y }
+	}
+
+	const scale = radius / distance
+	return { x: x * scale, y: y * scale }
 }
 
 function FyouPage() {
-  const stageRef = useRef<HTMLDivElement | null>(null)
-  const targetX = useMotionValue(0)
-  const targetY = useMotionValue(0)
+	const controls = useAnimationControls()
+	const rawX = useMotionValue(0)
+	const rawY = useMotionValue(0)
+	const stickiness = useMotionValue(STICKINESS_START)
+	const x = useSpring(rawX, { stiffness: 250, damping: 18, mass: 0.65 })
+	const y = useSpring(rawY, { stiffness: 250, damping: 18, mass: 0.65 })
+	const idleTimerRef = useRef<number | null>(null)
 
-  const x = useSpring(targetX, { stiffness: 85, damping: 18, mass: 0.9 })
-  const y = useSpring(targetY, { stiffness: 85, damping: 18, mass: 0.9 })
+	const scheduleReset = useCallback((delay = IDLE_RESET_DELAY_MS) => {
+		if (idleTimerRef.current !== null) {
+			window.clearTimeout(idleTimerRef.current)
+		}
 
-  const moveToCenter = useCallback(() => {
-    targetX.set(0)
-    targetY.set(0)
-  }, [targetX, targetY])
+		idleTimerRef.current = window.setTimeout(() => {
+			rawX.set(0)
+			rawY.set(0)
+		}, delay)
+	}, [rawX, rawY])
 
-  const moveToPointer = useCallback((clientX: number, clientY: number) => {
-    const stage = stageRef.current
-    if (!stage) return
+	const setStickyPosition = useCallback(
+		(clientX: number, clientY: number, pointerType: string) => {
+			const centerX = window.innerWidth / 2
+			const centerY = window.innerHeight / 2
+			const stickyStrength = stickiness.get()
+			const offsetX = (clientX - centerX) * stickyStrength
+			const offsetY = (clientY - centerY) * stickyStrength
+			const maxOffset = pointerType === 'touch' ? MAX_OFFSET_TOUCH : MAX_OFFSET_MOUSE
+			const clamped = clampToCircle(offsetX, offsetY, maxOffset)
 
-    const rect = stage.getBoundingClientRect()
-    const pointerX = clientX - rect.left - rect.width / 2
-    const pointerY = clientY - rect.top - rect.height / 2
+			rawX.set(clamped.x)
+			rawY.set(clamped.y)
+			scheduleReset()
+		},
+		[rawX, rawY, scheduleReset, stickiness],
+	)
 
-    // Slightly bias toward the pointer for a sticky feel while preserving smoothness.
-    targetX.set(pointerX)
-    targetY.set(pointerY)
-  }, [targetX, targetY])
+	useEffect(() => {
+		let isAlive = true
+		let stopStickinessAnimation: { stop: () => void } | null = null
 
-  useLayoutEffect(() => {
-    moveToCenter()
-  }, [moveToCenter])
+		const runIntro = async () => {
+			stopStickinessAnimation = animate(stickiness, STICKINESS_END, {
+				duration: 10,
+				ease: [0.7, 0, 0.84, 0],
+			})
 
-  useEffect(() => {
-    const onResize = () => moveToCenter()
-    window.addEventListener('resize', onResize)
-    return () => window.removeEventListener('resize', onResize)
-  }, [moveToCenter])
+			await controls.start({
+				scale: 1.3,
+				rotate: 2520,
+				filter: 'blur(0px)',
+				opacity: 1,
+				transition: {
+					duration: 10,
+					ease: [0.7, 0, 0.84, 0],
+					rotate: {
+						duration: 10,
+						ease: [0.33, 1, 0.68, 1],
+					},
+				},
+			})
 
-  return (
-    <motion.main
-      key="fyou"
-      ref={stageRef}
-      className="relative h-dvh w-full touch-none overflow-hidden overscroll-none bg-white"
-      onPointerDown={(event) => moveToPointer(event.clientX, event.clientY)}
-      onPointerMove={(event) => moveToPointer(event.clientX, event.clientY)}
-      onPointerLeave={moveToCenter}
-      onPointerUp={moveToCenter}
-      onPointerCancel={moveToCenter}
-      onTouchStart={(event) => {
-        const touch = event.touches[0]
-        if (!touch) return
-        moveToPointer(touch.clientX, touch.clientY)
-      }}
-      onTouchMove={(event) => {
-        const touch = event.touches[0]
-        if (!touch) return
-        event.preventDefault()
-        moveToPointer(touch.clientX, touch.clientY)
-      }}
-      onTouchEnd={moveToCenter}
-      onTouchCancel={moveToCenter}
-    >
-      <motion.div
-        aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-1/2 select-none text-9xl sm:text-9xl"
-        style={{ x, y }}
-        initial={{ scale: 0.1, opacity: 0.5, filter: 'blur(14px)' }}
-        animate={{ scale: 1, opacity: 1, filter: 'blur(0px)' }}
-        transition={{
-          duration: 10,
-          ease: expoEase,
-        }}
-      >
-        <motion.span
-          className="block -translate-x-1/2 -translate-y-1/2"
-          animate={{ rotate: [0, -2, 1, 0] }}
-          transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
-        >
-        🖕
-        </motion.span>
-      </motion.div>
-    </motion.main>
-  )
+			if (!isAlive) return
+
+			await controls.start({
+				scale: 1.5,
+				filter: 'blur(0px)',
+				transition: {
+					duration: 0.1,
+					stiffness: 100,
+					damping: 20,
+					mass: 0,
+				},
+			})
+
+			await controls.start({
+				scale: 1,
+				filter: 'blur(0px)',
+				transition: {
+					type: 'spring',
+					stiffness: 300,
+					damping: 5,
+					mass: 0.4,
+				},
+			})
+
+			stopStickinessAnimation?.stop()
+		}
+
+		runIntro()
+		scheduleReset()
+
+		return () => {
+			isAlive = false
+			stopStickinessAnimation?.stop()
+			if (idleTimerRef.current !== null) {
+				window.clearTimeout(idleTimerRef.current)
+			}
+		}
+	}, [controls, scheduleReset, stickiness])
+
+	const onPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+		setStickyPosition(event.clientX, event.clientY, event.pointerType)
+	}
+
+	const onPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+		setStickyPosition(event.clientX, event.clientY, event.pointerType)
+	}
+
+	const onPointerEnd = () => {
+		scheduleReset(220)
+	}
+
+	return (
+		<motion.main
+			key="fyou"
+			initial={{ opacity: 0 }}
+			animate={{ opacity: 1 }}
+			exit={{ opacity: 0 }}
+			transition={{ duration: 0.35 }}
+			onPointerMove={onPointerMove}
+			onPointerDown={onPointerDown}
+			onPointerUp={onPointerEnd}
+			onPointerCancel={onPointerEnd}
+			onPointerLeave={onPointerEnd}
+			style={{
+				width: '100vw',
+				height: '100vh',
+				display: 'grid',
+				placeItems: 'center',
+				background: '#f8fafc',
+				overflow: 'hidden',
+				touchAction: 'none',
+				userSelect: 'none',
+			}}
+		>
+			<motion.div
+				initial={{
+					scale: 0.05,
+					rotate: 0,
+					filter: 'blur(15px)',
+					opacity: 0.72,
+				}}
+				animate={controls}
+				style={{
+					x,
+					y,
+					fontSize: 'clamp(15rem, 15vw, 10rem)',
+					lineHeight: 1,
+					willChange: 'transform, filter',
+					cursor: 'default',
+          WebkitUserSelect: 'none',
+          WebkitTouchCallout: 'none',
+				}}
+				aria-hidden="true"
+			>
+				🖕
+			</motion.div>
+		</motion.main>
+	)
 }
 
 export default FyouPage
