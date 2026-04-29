@@ -154,7 +154,7 @@ function FyouPage() {
 				height: '100vh',
 				display: 'grid',
 				placeItems: 'center',
-				background: '#f8fafc',
+				background: '#f9f9f9',
 				overflow: 'hidden',
 				touchAction: 'none',
 				userSelect: 'none',

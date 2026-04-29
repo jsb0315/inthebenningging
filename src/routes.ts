@@ -1,4 +1,4 @@
-export type RouteKey = '/' | '/example-1' | '/example-2' | '/example-3' | '/fyou'
+export type RouteKey = '/' | '/example-1' | '/example-2' | '/example-3' | '/fyou' | '/rotary-dial'
 
 export const pageCards: Array<{
   path: Exclude<RouteKey, '/'>
@@ -25,6 +25,11 @@ export const pageCards: Array<{
     title: 'Fyou: Sticky Emoji',
     blurb: 'One emoji appears from far away, follows pointer/touch, and returns center.',
   },
+  {
+    path: '/rotary-dial',
+    title: 'Rotary Dial Phone',
+    blurb: 'Interactive simulation of a rotary dial telephone with pulse visualization.',
+  },
 ]
 
 export function normalizeHash(hash: string): RouteKey {
@@ -35,6 +40,7 @@ export function normalizeHash(hash: string): RouteKey {
   if (normalized === '/example-2') return '/example-2'
   if (normalized === '/example-3') return '/example-3'
   if (normalized === '/fyou') return '/fyou'
+  if (normalized === '/rotary-dial') return '/rotary-dial'
   return '/'
 }
 

@@ -1,0 +1,55 @@
+.dial {
+  position: relative;
+  border-radius: 50%;
+  background: #adadad;
+  overflow: hidden;
+}
+
+.dial-item {
+  position: absolute;
+  z-index: 1;
+}
+
+.circle {
+  border-radius: 50%;
+  background: #f9f9f9;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono, 'Courier New', monospace);
+  font-size: 1.5rem;
+  user-select: none;          /* 텍스트 선택 방지 */
+  -webkit-user-drag: none;    /* 이미지/요소 드래그 방지 (사파리 계열) */
+  touch-action: none;         /* 모바일 제스처 방지 (스크롤/줌 등) */
+}
+
+.dial-plate {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  animation: none;
+  pointer-events: none;
+  touch-action: none;
+}
+
+.dial-plate__handle {
+  pointer-events: auto;
+  cursor: grab;
+}
+
+.dial-plate__handle:active {
+  cursor: grabbing;
+}
+
+.dial-plate__face {
+  fill: rgba(235, 235, 235, 0.651);
+}
+
+@keyframes dial-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -5,6 +5,7 @@ import ExampleScrollStory from './pages/ExampleScrollStory'
 import ExampleStagger from './pages/ExampleStagger'
 import FyouPage from './pages/FyouPage'
 import HomePage from './pages/HomePage'
+import RotaryDialPage from './pages/RotaryDial'
 import { normalizeHash, pageCards, type RouteKey, updateHash } from './routes'
 import './App.css'
 
@@ -64,6 +65,8 @@ function App() {
       <ExampleScrollStory />
     ) : route === '/fyou' ? (
       <FyouPage />
+    ) : route === '/rotary-dial' ? (
+      <RotaryDialPage />
     ) : (
       <HomePage onNavigate={navigate} />
     )

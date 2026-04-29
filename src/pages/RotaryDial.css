@@ -1,0 +1,134 @@
+.rotary-lab {
+	min-height: 100vh;
+	padding: 32px clamp(16px, 3vw, 44px) 48px;
+	display: grid;
+	gap: 24px;
+	background: #f9f9f9;
+	color: #1c1f24;
+}
+
+.rotary-header {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: space-between;
+	gap: 20px;
+}
+
+.rotary-eyebrow {
+	font-size: 0.72rem;
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+	margin-bottom: 8px;
+	color: #6b7280;
+}
+
+.rotary-title {
+	margin: 0 0 0.6rem;
+	font-size: clamp(2rem, 4vw, 3.1rem);
+	font-family: var(--heading, 'Times New Roman', serif);
+	color: #101114;
+}
+
+.rotary-subtitle {
+	margin: 0;
+	max-width: 520px;
+	color: #5b616b;
+}
+
+.rotary-legend {
+	display: grid;
+	gap: 6px;
+	padding: 14px 18px;
+	border-radius: 16px;
+	background: #ffffff;
+	border: 1px solid #e5e7eb;
+	font-family: var(--mono, 'Courier New', monospace);
+	font-size: 0.7rem;
+	letter-spacing: 0.16em;
+	text-transform: uppercase;
+	color: #48505a;
+	box-shadow: 0 16px 38px rgba(15, 23, 42, 0.08);
+}
+
+.rotary-canvas {
+	position: relative;
+	min-height: min(76vh, 820px);
+	border-radius: 26px;
+	border: 1px dashed #d7dbe1;
+	padding: 12px;
+	background:
+		linear-gradient(90deg, rgba(31, 41, 55, 0.05) 1px, transparent 1px) 0 0 / 36px 36px,
+		linear-gradient(180deg, rgba(31, 41, 55, 0.05) 1px, transparent 1px) 0 0 / 36px 36px,
+		#f9f9f9;
+	overflow: hidden;
+}
+
+.rotary-panel {
+	border-radius: 18px;
+	background: #ffffff;
+	border: 1px solid #e2e8f0;
+	box-shadow:
+		0 18px 30px rgba(15, 23, 42, 0.12),
+		0 2px 6px rgba(15, 23, 42, 0.08);
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.rotary-panel__whole {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.rotary-panel__handle {
+	padding: 10px 12px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	cursor: grab;
+	background: linear-gradient(120deg, #f7f7f9, #fdfbff);
+	border-bottom: 1px solid #e5e7eb;
+}
+
+.rotary-panel__handle:active {
+	cursor: grabbing;
+}
+
+.rotary-panel__title {
+	font-family: var(--mono, 'Courier New', monospace);
+	font-size: 0.78rem;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: #111827;
+}
+
+.rotary-panel__meta {
+	font-family: var(--mono, 'Courier New', monospace);
+	font-size: 0.72rem;
+	color: #6b7280;
+}
+
+.rotary-panel__body {
+	flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+	background:
+		radial-gradient(circle at 20% 20%, rgba(148, 163, 184, 0.18), transparent 40%),
+		radial-gradient(circle at 80% 80%, rgba(148, 163, 184, 0.12), transparent 40%),
+		linear-gradient(160deg, #fafafa, #ffffff);
+}
+
+@media (max-width: 720px) {
+	.rotary-header {
+		align-items: flex-start;
+	}
+
+	.rotary-canvas {
+		min-height: 520px;
+	}
+}
