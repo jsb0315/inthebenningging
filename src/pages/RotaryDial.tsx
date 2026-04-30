@@ -1,25 +1,38 @@
-import { useState } from 'react'
 import { Rnd } from 'react-rnd'
 import './RotaryDial.css'
 import '../components/RotaryDial/DialCSS.css'
 
-import Dial from '../components/RotaryDial/Dial'
-const EmptySlot = () => <></>
+import Dial, { DialBackground, DialPlate } from '../components/RotaryDial/Dial'
+import type { RotaryPanel } from '../store/rotaryDialStore'
+import { useRotaryDialStore } from '../store/rotaryDialStore'
+
+const EmptySlot = () => null
+
+const DialAngleReadout = () => {
+	const rotation = useRotaryDialStore((state) => state.dialRotation)
+	const normalized = ((rotation % 360) + 360) % 360
+
+	return (
+		<div className="rotary-angle">
+			<div className="rotary-angle__value">{normalized.toFixed(1)} deg</div>
+			<div className="rotary-angle__label">Dial rotation</div>
+		</div>
+	)
+}
+
+const renderPanelNode = (content: RotaryPanel['content']) => {
+	if (content === 'dial-base') return <DialBackground />
+	if (content === 'dial-plate') return <DialPlate />
+	if (content === 'dial-combo') return <Dial />
+	if (content === 'dial-angle') return <DialAngleReadout />
+	return <EmptySlot />
+}
 
 function RotaryDial() {
-	const [activeId, setActiveId] = useState<string | null>(null)
-	const [panels, setPanels] = useState([
-		{ id: 'nav', title: 'Nav', x: 420, y: 32, width: 260, height: 150, node: <EmptySlot /> },
-		{ id: 'cta', title: 'CTA', x: 708, y: 32, width: 220, height: 150, node: <EmptySlot /> },
-		{ id: 'grid', title: 'Grid', x: 36, y: 276, width: 520, height: 320, node: <EmptySlot /> },
-		{ id: 'aside', title: 'Aside', x: 588, y: 220, width: 300, height: 376, node: <EmptySlot /> },
-		{ id: 'footer', title: 'Footer', x: 36, y: 620, width: 740, height: 170, node: <EmptySlot /> },
-		{ id: 'hero', title: 'Hero', x: 36, y: 32, width: 400, height: 400, node: <Dial /> },
-	])
-
-	const updatePanel = (id: string, next: Partial<(typeof panels)[number]>) => {
-		setPanels((prev) => prev.map((panel) => (panel.id === id ? { ...panel, ...next } : panel)))
-	}
+	const panels = useRotaryDialStore((state) => state.panels)
+	const activeId = useRotaryDialStore((state) => state.activeId)
+	const setActiveId = useRotaryDialStore((state) => state.setActiveId)
+	const updatePanel = useRotaryDialStore((state) => state.updatePanel)
 
 	return (
 		<main className="rotary-lab">
@@ -75,7 +88,7 @@ function RotaryDial() {
 									{panel.width}×{panel.height}
 								</span>
 							</div>
-							<div className="rotary-panel__body">{panel.node}</div>
+							<div className="rotary-panel__body">{renderPanelNode(panel.content)}</div>
 						</div>
 					</Rnd>
 				))}

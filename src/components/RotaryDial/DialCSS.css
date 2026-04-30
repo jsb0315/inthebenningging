@@ -1,8 +1,13 @@
 .dial {
   position: relative;
   border-radius: 50%;
-  background: #adadad;
   overflow: hidden;
+}
+
+.dial-layer {
+  position: absolute;
+  background: #adadad;
+  inset: 0;
 }
 
 .dial-item {
