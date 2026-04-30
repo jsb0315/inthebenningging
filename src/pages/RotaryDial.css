@@ -62,6 +62,19 @@
 		linear-gradient(180deg, rgba(31, 41, 55, 0.05) 1px, transparent 1px) 0 0 / 36px 36px,
 		#f9f9f9;
 	overflow: hidden;
+	cursor: grab;
+	user-select: none;
+	touch-action: none;
+}
+
+.rotary-canvas--panning {
+	cursor: grabbing;
+}
+
+.rotary-canvas__viewport {
+	position: relative;
+	width: 100%;
+	height: 100%;
 }
 
 .rotary-panel {
@@ -117,10 +130,57 @@
     align-items: center;
     justify-content: center;
     width: 100%;
+	height: 80%;
 	background:
 		radial-gradient(circle at 20% 20%, rgba(148, 163, 184, 0.18), transparent 40%),
 		radial-gradient(circle at 80% 80%, rgba(148, 163, 184, 0.12), transparent 40%),
 		linear-gradient(160deg, #fafafa, #ffffff);
+}
+
+.rotary-pulse {
+	display: flex;
+	flex-direction: column;
+	height: 100%;
+	gap: 8px;
+	text-align: center;
+	padding: 8px 12px;
+}
+
+.rotary-pulse__value {
+	font-size: 2.1rem;
+	font-weight: 600;
+	color: #111827;
+}
+
+.rotary-pulse__label {
+	font-family: var(--mono, 'Courier New', monospace);
+	font-size: 0.7rem;
+	letter-spacing: 0.18em;
+	text-transform: uppercase;
+	color: #6b7280;
+}
+
+.rotary-pulse__history {
+	border-top: 1px solid #e5e7eb;
+	padding-top: 8px;
+	max-height: 100%;
+	overflow: auto;
+}
+
+.rotary-pulse__list {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	font-family: var(--mono, 'Courier New', monospace);
+	font-size: 0.72rem;
+	color: #374151;
+	display: grid;
+	gap: 4px;
+}
+
+.rotary-pulse__empty {
+	font-size: 0.72rem;
+	color: #94a3b8;
 }
 
 @media (max-width: 720px) {

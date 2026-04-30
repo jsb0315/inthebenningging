@@ -1,10 +1,14 @@
 import type { PointerEvent as ReactPointerEvent, ReactNode, RefObject } from 'react'
-import { useEffect, useId, useMemo, useRef } from 'react'
+import { useCallback, useEffect, useId, useMemo, useRef } from 'react'
 import { useRotaryDialStore } from '../../store/rotaryDialStore'
 
 const count = 14
-const circleSize = 45
+const circleSize = 46
 const dialSize = 300
+const totalDialAngle = 300  // 0부터 finger stop까지의 총 회전 각도
+const returnSpeedDegPerSec = 360 
+const returnPulseStep = 360 / 14
+const returnPulseStartDeg = returnPulseStep * 3;
 
 const useDialGeometry = () =>
   useMemo(() => {
@@ -71,14 +75,123 @@ const DialPlateLayer = ({ dialRef }: { dialRef: RefObject<HTMLDivElement | null>
   const { holes } = useDialGeometry()
   const plateInstanceId = useId().replace(/:/g, '')
   const maskId = useId().replace(/:/g, '')
-  const dragStartAngleRef = useRef(0)
-  const dragStartRotationRef = useRef(0)
+  const prevAngleRef = useRef(0)
+  const locked = useRef(false)
+  const startPulse = useRef(false)
+  const rotationRef = useRef(0)
+  const returnFrameRef = useRef<number | null>(null)
+  const lastTimeRef = useRef(0)
   const rotation = useRotaryDialStore((state) => state.dialRotation)
   const isDragging = useRotaryDialStore((state) => state.isDragging)
   const dragOwnerId = useRotaryDialStore((state) => state.dragOwnerId)
   const setDialRotation = useRotaryDialStore((state) => state.setDialRotation)
+  const resetReturnPulse = useRotaryDialStore((state) => state.resetReturnPulse)
+  const addReturnPulse = useRotaryDialStore((state) => state.addReturnPulse)
+  const finalizeReturnPulse = useRotaryDialStore((state) => state.finalizeReturnPulse)
   const startDialDrag = useRotaryDialStore((state) => state.startDialDrag)
   const stopDialDrag = useRotaryDialStore((state) => state.stopDialDrag)
+
+  function getDeltaAngle(prev: number, curr: number) {
+    let delta = curr - prev
+    if (delta > Math.PI) delta -= 2 * Math.PI
+    if (delta < -Math.PI) delta += 2 * Math.PI
+    return delta
+  }
+
+  function isNearFive(angle: number, tolerance = 0.15) {
+    const FIVE = ((360 - totalDialAngle) * Math.PI) / 180
+
+    let diff = angle - FIVE
+
+    if (diff > Math.PI) diff -= 2 * Math.PI
+    if (diff < -Math.PI) diff += 2 * Math.PI
+
+    return Math.abs(diff) < tolerance
+  }
+
+  useEffect(() => {
+    rotationRef.current = rotation
+  }, [rotation])
+
+  useEffect(() => () => {
+    if (returnFrameRef.current !== null) {
+      cancelAnimationFrame(returnFrameRef.current)
+      returnFrameRef.current = null
+    }
+  }, [])
+
+  const stopReturnAnimation = useCallback(() => {
+    if (returnFrameRef.current !== null) {
+      cancelAnimationFrame(returnFrameRef.current)
+      returnFrameRef.current = null
+    }
+    startPulse.current = false
+    lastTimeRef.current = 0
+  }, [])
+
+  function mapAngle(angle: number) {
+    if (angle < returnPulseStartDeg) return 0
+
+    const index = Math.floor((angle - returnPulseStartDeg) / returnPulseStep)
+    return (index + 1) * returnPulseStep
+  }
+
+  const startReturnAnimation = useCallback(() => {
+    stopReturnAnimation()
+    resetReturnPulse()
+
+    const lastAngle = rotationRef.current
+    const startPulseAngle = mapAngle(lastAngle)
+    console.log(startPulseAngle)
+
+    const step = (timestamp: number) => {
+      if (lastTimeRef.current === 0) {
+        lastTimeRef.current = timestamp
+        returnFrameRef.current = requestAnimationFrame(step)
+        return
+      }
+
+      const dt = (timestamp - lastTimeRef.current) / 1000
+      lastTimeRef.current = timestamp
+      const current = rotationRef.current
+
+      if (current <= 0) {
+        finalizeReturnPulse()
+        returnFrameRef.current = null
+        return
+      }
+
+      const delta = -returnSpeedDegPerSec * dt
+      const next = Math.max(0, current + delta)
+      const applied = next - current
+      
+      if (next < startPulseAngle) {
+        startPulse.current = true
+      }
+      
+      if (startPulse.current) {
+        const prevSteps = Math.floor(current / returnPulseStep)
+        const nextSteps = Math.floor(next / returnPulseStep)
+        const crossed = prevSteps - nextSteps
+        if (crossed > 0) {
+          addReturnPulse(crossed)
+        }
+      }
+
+      setDialRotation(applied)
+      rotationRef.current = next
+
+      if (next <= 0) {
+        finalizeReturnPulse()
+        returnFrameRef.current = null
+        return
+      }
+
+      returnFrameRef.current = requestAnimationFrame(step)
+    }
+
+    returnFrameRef.current = requestAnimationFrame(step)
+  }, [addReturnPulse, finalizeReturnPulse, resetReturnPulse, setDialRotation, stopReturnAnimation])
 
   useEffect(() => {
     if (!isDragging || dragOwnerId !== plateInstanceId) return
@@ -89,12 +202,26 @@ const DialPlateLayer = ({ dialRef }: { dialRef: RefObject<HTMLDivElement | null>
       const cx = rect.left + rect.width / 2
       const cy = rect.top + rect.height / 2
       const angle = Math.atan2(event.clientY - cy, event.clientX - cx)
-      const delta = angle - dragStartAngleRef.current
-      setDialRotation(dragStartRotationRef.current + (delta * 180) / Math.PI)
+
+      const delta = getDeltaAngle(prevAngleRef.current, angle)
+      const rotationDelta = (delta * 180) / Math.PI
+      if (!locked.current && isNearFive(angle))
+        locked.current = true
+
+      if (delta < 0 || locked.current)
+        return
+     
+      setDialRotation(rotationDelta)
+
+      prevAngleRef.current = angle
     }
 
     const handlePointerUp = () => {
+      locked.current = false
       stopDialDrag()
+      if (rotationRef.current > 0) {
+        startReturnAnimation()
+      }
     }
 
     window.addEventListener('pointermove', handlePointerMove)
@@ -104,16 +231,18 @@ const DialPlateLayer = ({ dialRef }: { dialRef: RefObject<HTMLDivElement | null>
       window.removeEventListener('pointermove', handlePointerMove)
       window.removeEventListener('pointerup', handlePointerUp)
     }
-  }, [dialRef, dragOwnerId, isDragging, plateInstanceId, setDialRotation, stopDialDrag])
+  }, [dialRef, dragOwnerId, isDragging, plateInstanceId, setDialRotation, startReturnAnimation, stopDialDrag])
 
   const handlePointerDown = (event: ReactPointerEvent<SVGCircleElement>) => {
     if (!dialRef.current) return
+    stopReturnAnimation()
     event.currentTarget.setPointerCapture(event.pointerId)
     const rect = dialRef.current.getBoundingClientRect()
     const cx = rect.left + rect.width / 2
     const cy = rect.top + rect.height / 2
-    dragStartAngleRef.current = Math.atan2(event.clientY - cy, event.clientX - cx)
-    dragStartRotationRef.current = rotation
+    prevAngleRef.current = Math.atan2(event.clientY - cy, event.clientX - cx)
+    rotationRef.current = rotation
+    resetReturnPulse()
     startDialDrag(plateInstanceId)
   }
 
@@ -160,6 +289,13 @@ const DialPlateLayer = ({ dialRef }: { dialRef: RefObject<HTMLDivElement | null>
   )
 }
 
+const DialFingerStop = () => {
+
+  return (
+    <div className="dial-fingerstop"/>
+  )
+}
+
 export const DialBackground = () => (
   <DialStage>
     <DialBackgroundLayer />
@@ -172,6 +308,7 @@ export const DialPlate = () => {
   return (
     <DialStage dialRef={dialRef}>
       <DialPlateLayer dialRef={dialRef} />
+      <DialFingerStop />
     </DialStage>
   )
 }
@@ -183,6 +320,7 @@ const Dial = () => {
     <DialStage dialRef={dialRef}>
       <DialBackgroundLayer />
       <DialPlateLayer dialRef={dialRef} />
+      <DialFingerStop />
     </DialStage>
   )
 }

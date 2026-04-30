@@ -1,12 +1,19 @@
 .dial {
   position: relative;
-  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  /* border-radius: 50%; */
   overflow: hidden;
+  user-select: none;          /* 텍스트 선택 방지 */
+  -webkit-user-drag: none;    /* 이미지/요소 드래그 방지 (사파리 계열) */
+  touch-action: none;         /* 모바일 제스처 방지 (스크롤/줌 등) */
 }
 
 .dial-layer {
   position: absolute;
   background: #adadad;
+  border-radius: 50%;
   inset: 0;
 }
 
@@ -28,6 +35,22 @@
   touch-action: none;         /* 모바일 제스처 방지 (스크롤/줌 등) */
 }
 
+.dial-fingerstop {
+  position: absolute;
+  width: 14px;
+  height: 80px;
+  left: 70%;
+  top: 70%;
+  z-index: 3;
+  pointer-events: none;
+  transform: rotate(135deg);
+  border-radius: 10px;
+  background: linear-gradient(180deg, #0f172a, #4b5563 55%, #1f2937);
+  box-shadow:
+    0 10px 16px rgba(15, 23, 42, 0.2),
+    inset 0 0 10px rgba(255, 255, 255, 0.3);
+}
+
 .dial-plate {
   position: absolute;
   inset: 0;
@@ -35,6 +58,7 @@
   animation: none;
   pointer-events: none;
   touch-action: none;
+  border-radius: 50%;
 }
 
 .dial-plate__handle {
